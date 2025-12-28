@@ -25,6 +25,9 @@ convert_bbcode_to_markdown() {
     
     # Suppression des balises [align=center] et [/align]
     content=$(echo "$content" | sed 's/\[align=center\]//g' | sed 's/\[\/align\]//g')
+
+    # Conversion des images [img]/path/image.png[/img] => ![](/path/image.png)
+    content=$(echo "$content" | sed -E 's|\[img\]([^[]+)\[/img\]|![](\1)|g')
     
     # Conversion des titres de niveau 1 (-- titre --)
     content=$(echo "$content" | sed 's/^-- \(.*\) --$/# \1/g')
@@ -37,7 +40,7 @@ convert_bbcode_to_markdown() {
     
     # Conversion des titres de niveau 4 (----- titre -----)
     content=$(echo "$content" | sed 's/^----- \(.*\) -----$/### \1/g')
-    
+
     # Conversion du gras [b]texte[/b] => **texte** (toutes occurrences)
     content=$(echo "$content" | sed 's/\[b\]/\*\*/g' | sed 's/\[\/b\]/\*\*/g')
     
@@ -58,6 +61,9 @@ convert_bbcode_to_markdown() {
 
     # Conversion des URLs [url=...]...[/url] => [...](...){target="_blank"}
     content=$(echo "$content" | sed -E 's|\[url=([^]]+)\]([^[]+)\[/url\]|[\2](\1){target="_blank"}|g')
+
+    # Conversion des liens locaux [link=...]...[/link] => [...](/wiki/...)
+    content=$(echo "$content" | sed -E 's|\[link=([^]]+)\]([^[]+)\[/link\]|[\2](/wiki/\1)|g')
     
     # Conversion des blocs de style
     # [style=success]texte[/style] => > texte\n{.is-success}
